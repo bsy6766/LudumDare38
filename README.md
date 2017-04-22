@@ -13,4 +13,4 @@ Art tool: Adobe Photoshop, TexturePacker
 
 ## Log
 4/21/2017 8:00 pm CDT - Started LDJam.  
-4/22/2017 2:00 pm CDT - Paused.  
+4/22/2017 2:00 pm CDT - Paused. Going to short sleep.
