@@ -9,14 +9,18 @@ Building::Building(const int hitPoint, const bool destructable)
 	, buildingSprite(nullptr)
 	, hpBarFrame(nullptr)
 	, alwaysShowHp(false)
+	, populationCost(0)
+	, foodCost(0)
+	, metalCost(0)
+	, woodCost(0)
 {}
 
-void Building::initHpBar(cocos2d::Node* parent)
+void Building::initHpBar()
 {
 	this->hpBarFrame = cocos2d::Sprite::createWithSpriteFrameName("hpBarFrame.png");
 	this->hpBarFrame->setColor(cocos2d::Color3B(11, 212, 0));
 	this->hpBarFrame->setPosition(cocos2d::Vec2(0.0f, 20.0f));
-	parent->addChild(this->hpBarFrame);
+	this->buildingNode->addChild(this->hpBarFrame);
 
 	this->hpBar = cocos2d::ProgressTimer::create(cocos2d::Sprite::createWithSpriteFrameName("progressBar.png"));
 	this->hpBar->setType(cocos2d::ProgressTimer::Type::BAR);
@@ -28,6 +32,14 @@ void Building::initHpBar(cocos2d::Node* parent)
 	this->hpBarFrame->addChild(this->hpBar);
 
 	this->hpBarFrame->setVisible(false);
+}
+
+void Building::initCost(const int pCost, const int fCost, const int mCost, const int wCost)
+{
+	this->populationCost = pCost;
+	this->foodCost = fCost;
+	this->metalCost = mCost;
+	this->woodCost = wCost;
 }
 
 void Building::setHpBarVisibility(const bool visibility)
@@ -87,9 +99,7 @@ void Building::takeDamage(const int damage)
 			this->buildingSprite->runAction(Shake::create(0.15f, 10.0f, 5.0f));
 			if (this->alwaysShowHp == false)
 			{
-				auto seq = cocos2d::Sequence::create(cocos2d::Show::create(), cocos2d::FadeTo::create(0, 255), cocos2d::DelayTime::create(0.5f), cocos2d::FadeTo::create(0.2f, 0), cocos2d::Hide::create(), nullptr);
-				this->hpBarFrame->runAction(seq->clone());
-				this->hpBar->runAction(seq);
+				this->flashHpBar();
 			}
 		}
 	}
@@ -115,15 +125,45 @@ int Building::getCurHp()
 	return this->hitPoint;
 }
 
+std::string Building::getCostsAsStr()
+{
+	return std::to_string(populationCost) + "       " + std::to_string(metalCost) + "\n" + std::to_string(woodCost) + "       " + std::to_string(foodCost);
+}
+
+void Building::destroy()
+{
+	this->buildingNode->removeAllChildren();
+	this->buildingNode->removeFromParent();
+	this->buildingNode = nullptr;
+}
+
+void Building::setOpacity(const GLubyte opacity)
+{
+	this->buildingSprite->setOpacity(opacity);
+}
+
+void Building::flashHpBar()
+{
+	if (this->hpBarFrame)
+	{
+		auto seq = cocos2d::Sequence::create(cocos2d::Show::create(), cocos2d::FadeTo::create(0, 255), cocos2d::DelayTime::create(0.5f), cocos2d::FadeTo::create(0.2f, 0), cocos2d::Hide::create(), nullptr);
+		this->hpBarFrame->runAction(seq->clone());
+		this->hpBar->runAction(seq);
+	}
+}
+
 
 
 Castle::Castle(cocos2d::Node* parent)
 	: Building(DataManager::getInstance()->getData("BUILDING_DATA")->getInt("castle.hp"), false)
 {
+	this->buildingNode = cocos2d::Node::create();
+	parent->addChild(this->buildingNode);
+
 	this->buildingSprite = cocos2d::Sprite::createWithSpriteFrameName("castleBuilding.png");
 	this->buildingSprite->setPosition(cocos2d::Vec2(0, 8.0f));
 	//this->buildingSprite->setScale(1.2f);
-	parent->addChild(this->buildingSprite);
+	this->buildingNode->addChild(this->buildingSprite);
 
 	// add flag animation
 	cocos2d::Vector<cocos2d::SpriteFrame*> animFrame(4);
@@ -139,12 +179,12 @@ Castle::Castle(cocos2d::Node* parent)
 	auto castleFlagSprite = cocos2d::Sprite::createWithSpriteFrame(animFrame.front());
 	castleFlagSprite->setPosition(cocos2d::Vec2(-8.0f, 44.0f));
 
-	parent->addChild(castleFlagSprite);
+	this->buildingNode->addChild(castleFlagSprite);
 
 	auto animation = cocos2d::Animation::createWithSpriteFrames(animFrame, 0.1f);
 	castleFlagSprite->runAction(cocos2d::RepeatForever::create(cocos2d::Animate::create(animation)));
 
-	this->initHpBar(parent);
+	this->initHpBar();
 }
 
 void Castle::update(const float delta)
@@ -186,14 +226,6 @@ ResourceGenBuilding * ResourceGenBuilding::create(const std::string& key, cocos2
 	std::string spriteType = bd->getString(key + ".sprite.typeName");
 
 	auto newBuilding = new ResourceGenBuilding(pr, hp);
-	newBuilding->buildingSprite = cocos2d::Sprite::createWithSpriteFrameName(spriteType + "Building.png");
-	newBuilding->buildingSprite->setPosition(offset);
-	parent->addChild(newBuilding->buildingSprite);
-	newBuilding->initHpBar(parent);
-	newBuilding->initResourcePogressBar(parent);
-	newBuilding->initProductionProgressTimer(parent);
-	newBuilding->initRsUsageRate(bd->getInt(key + ".resource.useRate.population"), bd->getInt(key + ".resource.useRate.wood"), bd->getInt(key + ".resource.useRate.food"), bd->getInt(key + ".resource.useRate.metal"));
-	newBuilding->initRsGainUseIcons(parent, key);
 
 	int type = bd->getInt(key + ".type");
 
@@ -206,14 +238,28 @@ ResourceGenBuilding * ResourceGenBuilding::create(const std::string& key, cocos2
 		newBuilding->type = static_cast<BuildingType>(type);
 	}
 
+	newBuilding->buildingNode = cocos2d::Node::create();
+	parent->addChild(newBuilding->buildingNode);
+
+	newBuilding->buildingSprite = cocos2d::Sprite::createWithSpriteFrameName(spriteType + "Building.png");
+	newBuilding->buildingSprite->setPosition(offset);
+	newBuilding->buildingNode->addChild(newBuilding->buildingSprite);
+
+	newBuilding->initHpBar();
+	newBuilding->initResourcePogressBar();
+	newBuilding->initProductionProgressTimer();
+	newBuilding->initRsUsageRate(bd->getInt(key + ".resource.useRate.population"), bd->getInt(key + ".resource.useRate.wood"), bd->getInt(key + ".resource.useRate.food"), bd->getInt(key + ".resource.useRate.metal"));
+	newBuilding->initRsGainUseIcons(key);
+	newBuilding->initCost(bd->getInt(key + ".cost.population"), bd->getInt(key + ".cost.food"), bd->getInt(key + ".cost.metal"), bd->getInt(key + ".cost.wood"));
+
 	return newBuilding;
 }
 
-void ResourceGenBuilding::initProductionProgressTimer(cocos2d::Node* parent)
+void ResourceGenBuilding::initProductionProgressTimer()
 {
 	this->productionProgressBg = cocos2d::Sprite::createWithSpriteFrameName("productionProgressRadialBg.png");
 	this->productionProgressBg->setPosition(cocos2d::Vec2(0, 42.0f));
-	parent->addChild(this->productionProgressBg);
+	this->buildingNode->addChild(this->productionProgressBg);
 
 	this->productionProgressBar = cocos2d::ProgressTimer::create(cocos2d::Sprite::createWithSpriteFrameName("productionProgressRadial.png"));
 	this->productionProgressBar->setType(cocos2d::ProgressTimer::Type::RADIAL);
@@ -222,11 +268,11 @@ void ResourceGenBuilding::initProductionProgressTimer(cocos2d::Node* parent)
 	this->productionProgressBg->addChild(this->productionProgressBar);
 }
 
-void ResourceGenBuilding::initRsGainUseIcons(cocos2d::Node * parent, const std::string& spriteType)
+void ResourceGenBuilding::initRsGainUseIcons(const std::string& spriteType)
 {
 	this->rsGainIcon = cocos2d::Node::create();
 	this->rsGainIcon->setCascadeOpacityEnabled(true);
-	parent->addChild(this->rsGainIcon);
+	this->buildingNode->addChild(this->rsGainIcon);
 
 	auto iconSprite = cocos2d::Sprite::createWithSpriteFrameName(spriteType + "Icon.png");
 	iconSprite->setPosition(cocos2d::Vec2(-15.0f, 0));
@@ -249,7 +295,7 @@ void ResourceGenBuilding::initRsGainUseIcons(cocos2d::Node * parent, const std::
 
 
 	this->rsUseIcon = cocos2d::Node::create();
-	parent->addChild(this->rsUseIcon);
+	this->buildingNode->addChild(this->rsUseIcon);
 
 	if (this->populationUsageRate > 0)
 	{
@@ -259,6 +305,13 @@ void ResourceGenBuilding::initRsGainUseIcons(cocos2d::Node * parent, const std::
 	if (this->foodUsageRate > 0)
 	{
 		this->initRsUseIcons("foodIcon.png", static_cast<int>(ResourceManager::ResourceType::FOOD));
+	}
+	else
+	{
+		if (this->type == BuildingType::POPULATION)
+		{
+			this->initRsUseIcons("foodIcon.png", static_cast<int>(ResourceManager::ResourceType::FOOD));
+		}
 	}
 
 	if (this->woodUsageRate > 0)
@@ -275,12 +328,12 @@ void ResourceGenBuilding::initRsGainUseIcons(cocos2d::Node * parent, const std::
 	this->rsUseAnimSeq->retain();
 }
 
-void ResourceGenBuilding::initResourcePogressBar(cocos2d::Node * parent)
+void ResourceGenBuilding::initResourcePogressBar()
 {
 	this->rsBarFrame = cocos2d::Sprite::createWithSpriteFrameName("resourceBarFrame.png");
 	this->rsBarFrame->setColor(cocos2d::Color3B(255, 140, 0));
 	this->rsBarFrame->setPosition(cocos2d::Vec2(0.0f, 0.0f));
-	parent->addChild(this->rsBarFrame);
+	this->buildingNode->addChild(this->rsBarFrame);
 
 	this->rsBar = cocos2d::ProgressTimer::create(cocos2d::Sprite::createWithSpriteFrameName("progressBar.png"));
 	this->rsBar->setType(cocos2d::ProgressTimer::Type::BAR);
@@ -327,17 +380,17 @@ void ResourceGenBuilding::initRsUsageRate(const int pr, const int wr, const int 
 	this->metalUsageRate = mr;
 }
 
-ResourceGenBuilding * ResourceGenBuilding::createFarm(const bool boosted, cocos2d::Node* parent)
+ResourceGenBuilding * ResourceGenBuilding::createFarm(cocos2d::Node* parent)
 {
 	return ResourceGenBuilding::create("farm", parent);
 }
 
-ResourceGenBuilding * ResourceGenBuilding::createLumberMill(const bool boosted, cocos2d::Node * parent)
+ResourceGenBuilding * ResourceGenBuilding::createLumberMill(cocos2d::Node * parent)
 {
 	return ResourceGenBuilding::create("lumbermill", parent);
 }
 
-ResourceGenBuilding * ResourceGenBuilding::createMine(const bool boosted, cocos2d::Node * parent)
+ResourceGenBuilding * ResourceGenBuilding::createMine(cocos2d::Node * parent)
 {
 	return ResourceGenBuilding::create("mine", parent);
 }
@@ -346,7 +399,7 @@ ResourceGenBuilding * ResourceGenBuilding::createVillage(cocos2d::Node * parent)
 {
 	auto village =  ResourceGenBuilding::create("village", parent);
 
-	village->initRsGainUseIcons(parent, "village");
+	village->initRsGainUseIcons("village");
 
 	auto smokeParticle = cocos2d::ParticleSystemQuad::create("particles/smoke.plist");
 	smokeParticle->setPosition(cocos2d::Vec2(-37.0f, 60.0f));
@@ -384,6 +437,7 @@ void ResourceGenBuilding::update(const float delta)
 			}
 			this->playRsUseAnim(cocos2d::Vec2(30.0f, -14.0f), static_cast<int>(ResourceManager::ResourceType::POPULATION), 1);
 			this->populationUsageTracker -= this->populationUsageRate;
+			rm->usePopulation(1);
 		}
 	}
 
@@ -398,6 +452,7 @@ void ResourceGenBuilding::update(const float delta)
 			}
 			this->playRsUseAnim(cocos2d::Vec2(30.0f, -14.0f), static_cast<int>(ResourceManager::ResourceType::FOOD), 1);
 			this->foodUsageTracker -= this->foodUsageRate;
+			rm->useFoods(1);
 		}
 	}
 
@@ -412,6 +467,7 @@ void ResourceGenBuilding::update(const float delta)
 			}
 			this->playRsUseAnim(cocos2d::Vec2(30.0f, -14.0f), static_cast<int>(ResourceManager::ResourceType::WOOD), 1);
 			this->woodUsageTracker -= this->woodUsageRate;
+			rm->useWoods(1);
 		}
 	}
 
@@ -426,6 +482,7 @@ void ResourceGenBuilding::update(const float delta)
 			}
 			this->playRsUseAnim(cocos2d::Vec2(30.0f, -14.0f), static_cast<int>(ResourceManager::ResourceType::METAL), 1);
 			this->metalUsageTracker -= this->metalUsageRate;
+			rm->useMetals(1);
 		}
 	}
 }
@@ -516,7 +573,16 @@ void ResourceGenBuilding::playRsUseAnim(const cocos2d::Vec2 & startPos, const in
 
 	auto child = this->rsUseIcon->getChildByTag(tag);
 
-	child->setPosition(cocos2d::Vec2(startPos.x, startPos.y - (static_cast<float>(counter) * 15.0f)));
+	auto pos = cocos2d::Vec2(startPos.x, startPos.y - (static_cast<float>(counter) * 15.0f));
+
+	if (this->type == BuildingType::POPULATION)
+	{
+		if (point == 3)
+		{
+			pos.x -= 7.0f;
+		}
+	}
+	child->setPosition(pos);
 
 	auto label = dynamic_cast<cocos2d::Label*>(child->getChildByTag(0));
 	label->setString("- " + std::to_string(point));

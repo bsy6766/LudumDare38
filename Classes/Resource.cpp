@@ -24,7 +24,7 @@ void NaturalResource::makeEnriched(const int value)
 {
 	this->enrichedModifier = value;
 	//this->totalAmount += (this->totalAmount / 2);
-	this->totalAmount *= 2;
+	this->totalAmount += 25;
 	this->currentAmount = this->totalAmount;
 }
 
@@ -277,6 +277,26 @@ bool ResourceManager::addPopulation(const int population)
 	return false;
 }
 
+void ResourceManager::useFoods(const int foods)
+{
+	this->useResource(this->foods, this->foodsCap, foods);
+}
+
+void ResourceManager::useWoods(const int woods)
+{
+	this->useResource(this->woods, this->woodsCap, woods);
+}
+
+void ResourceManager::useMetals(const int metals)
+{
+	this->useResource(this->metals, this->metalsCap, metals);
+}
+
+void ResourceManager::usePopulation(const int population)
+{
+	this->useResource(this->population, this->populationCap, population);
+}
+
 bool ResourceManager::doesNeedToUpdateUI()
 {
 	return this->updateUI;
@@ -287,6 +307,43 @@ void ResourceManager::markAsUIUpdated()
 	this->updateUI = false;
 }
 
+bool ResourceManager::checkCost(const int pCost, const int wCost, const int mCost, const int fCost)
+{
+	if (pCost != 0)
+	{
+		if (this->population < pCost)
+		{
+			return false;
+		}
+	}
+
+	if (wCost != 0)
+	{
+		if (this->woods < wCost)
+		{
+			return false;
+		}
+	}
+
+	if (mCost != 0)
+	{
+		if (this->metals < mCost)
+		{
+			return false;
+		}
+	}
+
+	if (fCost != 0)
+	{
+		if (this->foods < fCost)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void ResourceManager::print()
 {
 	cocos2d::log("ResourceManager...");
@@ -295,4 +352,14 @@ void ResourceManager::print()
 	cocos2d::log("woods = %d", this->woods);
 	cocos2d::log("metals = %d", this->metals);
 	cocos2d::log("troops = %d", this->troops);
+}
+
+void ResourceManager::debugSetAllRsToZero()
+{
+	this->population = 0;
+	this->foods = 0;
+	this->woods = 0;
+	this->metals = 0;
+
+	this->needToUpdateUI();
 }

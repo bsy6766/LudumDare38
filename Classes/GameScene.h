@@ -44,6 +44,7 @@ private:
 		TILES,
 		TREES,
 		GRADIANTS,
+		PARTICLES,
 		UI
 	};
 
@@ -140,15 +141,23 @@ private:
 	cocos2d::Sprite* titleDivider;
 	cocos2d::Sprite* secondDivider;
 	cocos2d::Sprite* thirdDivider;
+	cocos2d::Sprite* lastDivider;
 
 	// Labels
 	cocos2d::Label* tileTitleLabel;
 	cocos2d::Label* genLabel;
 	cocos2d::Label* usesLabel;
+	cocos2d::Sprite* genUsesLabel;
 	cocos2d::Label* castleHpLabel;
 
-	cocos2d::Label* nrTitle;
+	cocos2d::Sprite* nrTitle;
 	cocos2d::Label* nrLabel;
+
+	cocos2d::Sprite* costLabel;
+	cocos2d::Label* costNumberLabel;
+
+	cocos2d::Sprite* rsLeftLabel;
+	cocos2d::Label* rsLeftNumber;
 
 	// icons
 	cocos2d::Sprite* buildIcon;
@@ -163,9 +172,14 @@ private:
 	cocos2d::Sprite* nrIcon;
 	cocos2d::Sprite* enrichIcon;
 	cocos2d::Sprite* verticalIcon;
+	cocos2d::Sprite* costIcon;
+
+	cocos2d::Sprite* buildConfirmIcon;
 
 	cocos2d::Sprite* tileHoverSprite;
 	cocos2d::Sprite* tileSelectSprite;
+
+	cocos2d::Sprite* buildPreview;
 
 	cocos2d::Node* tileNode;
 	std::vector<std::vector<LD38::Tile*>> tileGrid;
@@ -192,8 +206,10 @@ private:
 	void initSprites();
 	void initData();
 	void initInstances();
+	void initAudio();
 
 	void updateResourceUI(ResourceManager* rm);
+	void updateResourceLabel(cocos2d::Label* label, const int amount, const int cap);
 	void clearRightPanel();
 	void updateRightPanel(LD38::Tile* tile);
 	void toggleBuildingIcons(const bool visibility);
@@ -202,6 +218,9 @@ private:
 	bool checkBuildingIconMouseClick(const cocos2d::Vec2& point);
 	bool checkBuildingIconMouseHover(const cocos2d::Vec2& point);
 	bool checkRightPanelMouse(const cocos2d::Vec2& point);
+	void toggleBuildingPreview(LD38::Tile* tile);
+	void playSelectSound(LD38::Tile* tile);
+	void playButtonClickSFX();
 
 	LD38::Tile* getTileById(const int tileId);
 
@@ -214,6 +233,8 @@ public:
 
 	//Cocos2d Macro
 	CREATE_FUNC(GameScene);
+
+	void requestRightPanelUpdate(const int tileId);
 };
 
 #endif

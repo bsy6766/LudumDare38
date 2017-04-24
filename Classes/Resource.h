@@ -56,6 +56,8 @@ private:
 	void needToUpdateUI();
 	void addResource(int& resource, const int& resourceCap, const int amount);
 	bool useResource(int& resource, const int& resourceCap, const int amount);
+
+	void updateCapacity();
 public:
 	// Get instance
 	static ResourceManager* getInstance();
@@ -95,18 +97,35 @@ public:
 	bool isWoodEmpty();
 	bool isMetalEmpty();
 
-	// add food
+	// add 
 	void addFoods(const int foods);
 	void addWoods(const int woods);
 	void addMetals(const int metals);
 	bool addPopulation(const int population);
 
+	// use
+	void useFoods(const int foods);
+	void useWoods(const int woods);
+	void useMetals(const int metals);
+	void usePopulation(const int population);
+
 	// update f;ag
 	bool doesNeedToUpdateUI();
 	void markAsUIUpdated();
 
+	bool checkCost(const int pCost, const int wCost, const int mCost, const int fCost);
+
+	/*
+	void changePopulationCap(const bool increase);
+	void changeFoodsCap(const bool increase);
+	void changeWoodsCap(const bool increase);
+	void changeMetalsCap(const bool )
+	*/
+
 	// print resources
 	void print();
+
+	void debugSetAllRsToZero();
 };
 
 #endif

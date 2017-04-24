@@ -19,7 +19,7 @@ MouseCursor::~MouseCursor()
 void MouseCursor::initCursors(cocos2d::Node * parent, const int z)
 {
 	this->cursorNode = cocos2d::Node::create();
-	parent->addChild(this->cursorNode);
+	parent->addChild(this->cursorNode, z);
 
 	this->defaultCursor = cocos2d::Sprite::createWithSpriteFrameName("defaultCursor.png");
 	this->defaultCursor->setAnchorPoint(cocos2d::Vec2(0.0f, 1.0f));

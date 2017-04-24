@@ -22,7 +22,7 @@ void GameSpeed::init(cocos2d::Node * parent, const int z)
 
 	this->speedIconNode = cocos2d::Node::create();
 	this->speedIconNode->setPosition(cocos2d::Vec2(x, 25.0f));
-	parent->addChild(this->speedIconNode);
+	parent->addChild(this->speedIconNode, z);
 
 	this->speedx0 = cocos2d::Sprite::createWithSpriteFrameName("speedX0.png");
 	this->speedx0->setVisible(false);

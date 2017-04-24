@@ -29,13 +29,20 @@ protected:
 	int maxHitPoint;
 
 	// coocs2d
+	cocos2d::Node* buildingNode;
 	cocos2d::Sprite* buildingSprite;
 	cocos2d::Sprite* hpBarFrame;
 	cocos2d::ProgressTimer* hpBar;
 
+	int populationCost;
+	int foodCost;
+	int metalCost;
+	int woodCost;
+
 	bool alwaysShowHp;
 
-	void initHpBar(cocos2d::Node* parent);
+	void initHpBar();
+	void initCost(const int pCost, const int fCost, const int mCost, const int wCost);
 
 	BuildingType type;
 public:
@@ -49,6 +56,13 @@ public:
 	int getMaxHp();
 	int getCurHp();
 	virtual float getProductionRate() { return 0; }
+
+	std::string getCostsAsStr();
+
+	void destroy();
+	void setOpacity(const GLubyte opacity);
+	void playCreationAnimation();
+	void flashHpBar();
 };
 
 /**
@@ -92,17 +106,17 @@ private:
 
 	static ResourceGenBuilding* create(const std::string& key, cocos2d::Node* parent);
 
-	void initProductionProgressTimer(cocos2d::Node* parent);
-	void initRsGainUseIcons(cocos2d::Node* parent, const std::string& spriteType);
-	void initResourcePogressBar(cocos2d::Node* parent);
+	void initProductionProgressTimer();
+	void initRsGainUseIcons(const std::string& spriteType);
+	void initResourcePogressBar();
 	void initRsUseIcons(const std::string& iconName, const int tag);
 	void initRsUsageRate(const int pr, const int wr, const int fr, const int mr);
 public:
 	~ResourceGenBuilding();
 
-	static ResourceGenBuilding* createFarm(const bool boosted, cocos2d::Node* parent);
-	static ResourceGenBuilding* createLumberMill(const bool boosted, cocos2d::Node* parent);
-	static ResourceGenBuilding* createMine(const bool boosted, cocos2d::Node* parent);
+	static ResourceGenBuilding* createFarm(cocos2d::Node* parent);
+	static ResourceGenBuilding* createLumberMill(cocos2d::Node* parent);
+	static ResourceGenBuilding* createMine(cocos2d::Node* parent);
 	static ResourceGenBuilding* createVillage(cocos2d::Node* parent);
 
 	void update(const float delta) override;

@@ -17,23 +17,48 @@ namespace LD38
 	class Tile
 	{
 	private:
+		enum class Z_ORDER
+		{
+			BG = 0,
+			WRECKAGE,
+			PARTICLES,
+			PROGRESS_BAR
+		};
+
+		enum class STATE
+		{
+			IDLE = 0,
+			CLEANING,
+			BUILDING,
+		};
+	private:
 		// Nullptr if there is no building
 		Building* building;
 
 		// natural resources that this tile can potentially produce
 		std::vector<NaturalResource> potentialResources;
 		NaturalResource* selectedNaturalResource;
-		const unsigned int METAL_INDEX = 0;
-		const unsigned int WOOD_INDEX = 1;
+		const unsigned int WOOD_INDEX = 0;
+		const unsigned int METAL_INDEX = 1;
 		const unsigned int FOOD_INDEX = 2;
 
 		// resource type
 		ResourceManager::ResourceType resourceType;
 
+		STATE state;
+
 		// cocos2d
 		cocos2d::Node* tileNode;
+		cocos2d::Sprite* buildingWreckage;
 		cocos2d::Sprite* emptyTileSprite;
 		cocos2d::ParticleSystemQuad* enrichedParticle;
+		cocos2d::ParticleSystemQuad* dustParticle;
+
+		cocos2d::Sprite* cleaningBarFrame;
+		cocos2d::ProgressTimer* cleaningBar;
+
+		cocos2d::Sprite* buildingBarFrame;
+		cocos2d::ProgressTimer* buildingBar;
 
 		// raw data
 		int row;
@@ -42,8 +67,22 @@ namespace LD38
 		
 		// true if tile is destroyed and need to be restored
 		bool destroyed;
+		float cleanElapsedTime;
+		float cleanDuration;
+		float buildElapsedTime;
+		float buildDuration;
 
 		bool updateResource(int& point, int& resource);
+
+		void clearBuilding();
+		void clearNaturalResource();
+
+		void initNaturalResources();
+
+		void onCleanUpFinished();
+		void onBuildFinished();
+		void rerollNaturalResources();
+		void initBuild();
 	public:
 		Tile();
 		~Tile();
@@ -70,6 +109,7 @@ namespace LD38
 		// show / hide hp bar
 		void showHpBar(const bool selected);
 		void hideHpBar();
+		void flashHpBar();
 		void showRsBar();
 		void hideRsBar();
 		// check if tile is empty
@@ -86,6 +126,21 @@ namespace LD38
 		std::string getNaturalResourcesAsStr();
 		void makeNaturalResourceEnriched(const int index);
 		int hasEnrichedNR();
+		const std::string getBuildingCostAsStr();
+
+		void buildFarm();
+		void buildVillage();
+		void buildMine();
+		void buildLumbermill();
+
+		void destroyBuilding();
+		bool isDestroyed();
+
+		bool isBuilding();
+
+		void cleanUp();
+
+		int getRemainigResource();
 	};
 }
 
