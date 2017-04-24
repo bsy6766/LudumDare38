@@ -3,26 +3,29 @@
 
 void NaturalResource::init()
 {
-	this->enriched = false;
+	this->enrichedModifier = 1.0f;
 	this->totalAmount = Utility::Random::randomInt(40, 60);
 	this->currentAmount = this->totalAmount;
 }
 
 void NaturalResource::init(NaturalResource& nr)
 {
-	this->enriched = nr.enriched;
+	this->enrichedModifier = nr.enrichedModifier;
 	this->totalAmount = nr.totalAmount;
 	this->currentAmount = this->totalAmount;
 }
 
 bool NaturalResource::isEnriched()
 {
-	return this->enriched;
+	return this->enrichedModifier > 1.0f;
 }
 
-void NaturalResource::makeEnriched()
+void NaturalResource::makeEnriched(const int value)
 {
-	this->enriched = true;
+	this->enrichedModifier = value;
+	//this->totalAmount += (this->totalAmount / 2);
+	this->totalAmount *= 2;
+	this->currentAmount = this->totalAmount;
 }
 
 bool NaturalResource::isDepleted()
@@ -46,6 +49,16 @@ void NaturalResource::update(int& point)
 int NaturalResource::getRemaining()
 {
 	return this->currentAmount;
+}
+
+int NaturalResource::getTotal()
+{
+	return this->totalAmount;
+}
+
+int NaturalResource::getEnrichedModifier()
+{
+	return this->enrichedModifier;
 }
 
 ResourceManager* ResourceManager::instance = nullptr;
@@ -181,6 +194,26 @@ bool ResourceManager::isMetalsFull()
 	return this->metals >= this->metalsCap;
 }
 
+bool ResourceManager::isPopulationEmpty()
+{
+	return this->population == 0;
+}
+
+bool ResourceManager::isFoodEmpty()
+{
+	return this->foods == 0;
+}
+
+bool ResourceManager::isWoodEmpty()
+{
+	return woods == 0;
+}
+
+bool ResourceManager::isMetalEmpty()
+{
+	return metals == 0;
+}
+
 void ResourceManager::addResource(int & resource, const int& resourceCap, const int amount)
 {
 	if (amount > 0)
@@ -191,6 +224,28 @@ void ResourceManager::addResource(int & resource, const int& resourceCap, const 
 			resource = resourceCap;
 		}
 		this->needToUpdateUI();
+	}
+}
+
+bool ResourceManager::useResource(int & resource, const int& resourceCap, const int amount)
+{
+	if (amount > resourceCap)
+	{
+		return false;
+	}
+	else
+	{
+		if (amount > resource)
+		{
+			return false;
+		}
+		else
+		{
+			// have enough 
+			resource -= amount;
+			this->needToUpdateUI();
+			return true;
+		}
 	}
 }
 
@@ -209,9 +264,17 @@ void ResourceManager::addMetals(const int metals)
 	this->addResource(this->metals, this->metalsCap, metals);
 }
 
-void ResourceManager::addPopulation(const int population)
+bool ResourceManager::addPopulation(const int population)
 {
-	this->addResource(this->population, this->populationCap, population);
+	// Requires 5 foods per 1 new population
+	bool success = this->useResource(this->foods, this->foodsCap, population * 3);
+	if (success)
+	{
+		this->addResource(this->population, this->populationCap, population);
+		return true;
+	}
+
+	return false;
 }
 
 bool ResourceManager::doesNeedToUpdateUI()

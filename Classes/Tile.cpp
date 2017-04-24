@@ -50,6 +50,8 @@ void LD38::Tile::initTile(const int id, const int row, const int col, const coco
 
 	this->emptyTileSprite = cocos2d::Sprite::createWithSpriteFrameName("emptyTile.png");
 	this->tileNode->addChild(this->emptyTileSprite);
+
+	this->enrichedParticle = nullptr;
 }
 
 void LD38::Tile::initCaslte()
@@ -123,12 +125,22 @@ void LD38::Tile::update(const float delta)
 				// population can always growth till cap 
 				if (rm->isPopulationFull() == false)
 				{
-					//this->building->update(delta);
+					this->building->update(delta);
 					int point = resourceGenBuilding->getProducedResources();
 					if (point > 0)
 					{
-						rm->addPopulation(point);
-						cocos2d::log("Tile #%d generated %d population.", this->id, point);
+						bool success = rm->addPopulation(point);
+						if (success)
+						{
+							resourceGenBuilding->playRsGainAnim(cocos2d::Vec2(-30.0f, -34.0f), point);
+							//cocos2d::log("Tile #%d generated %d population.", this->id, point);
+						}
+						else
+						{
+							//resourceGenBuilding->returnPoint(point);
+							//cocos2d::log("Tile #%d failed to generate %d population due to low food");
+							resourceGenBuilding->takeDamage(10);
+						}
 					}
 				}
 			}
@@ -176,9 +188,16 @@ void LD38::Tile::update(const float delta)
 							if (this->selectedNaturalResource->isDepleted())
 							{
 								resourceGenBuilding->reduceProductionRateBy(0.15f);
+								if (this->enrichedParticle)
+								{
+									this->enrichedParticle->removeFromParentAndCleanup(true);
+									this->enrichedParticle = nullptr;
+								}
 							}
 						}
 						// No need to update natrual resource if it's depleted
+
+						point *= this->selectedNaturalResource->getEnrichedModifier();
 
 						switch (this->resourceType)
 						{
@@ -198,6 +217,40 @@ void LD38::Tile::update(const float delta)
 						{
 							cocos2d::log("Tile #%d generated %d metal. %d metal remaining.", this->id, point, this->selectedNaturalResource->getRemaining());
 							ResourceManager::getInstance()->addMetals(point);
+						}
+						break;
+						default:
+							break;
+						}
+
+						resourceGenBuilding->playRsGainAnim(cocos2d::Vec2(-30.0f, -34.0f), point);
+						resourceGenBuilding->updateRsBar(static_cast<float>(this->selectedNaturalResource->getRemaining()) / static_cast<float>(this->selectedNaturalResource->getTotal()) * 100.0f);
+
+						// Check cap again
+						switch (this->resourceType)
+						{
+						case ResourceManager::ResourceType::FOOD:
+						{
+							if (rm->isFoodsFull())
+							{
+								resourceGenBuilding->clearCurrentProduction();
+							}
+						}
+						break;
+						case ResourceManager::ResourceType::WOOD:
+						{
+							if (rm->isWoodsFull())
+							{
+								resourceGenBuilding->clearCurrentProduction();
+							}
+						}
+						break;
+						case ResourceManager::ResourceType::METAL:
+						{
+							if (rm->isMetalsFull())
+							{
+								resourceGenBuilding->clearCurrentProduction();
+							}
 						}
 						break;
 						default:
@@ -237,11 +290,12 @@ cocos2d::Vec2 LD38::Tile::getTilePosition()
 	return this->tileNode->getPosition();
 }
 
-void LD38::Tile::showHpBar()
+void LD38::Tile::showHpBar(const bool selected)
 {
 	if (this->building)
 	{
 		this->building->setHpBarVisibility(true);
+		this->building->lockHpBarVisibility(selected);
 	}
 }
 
@@ -249,8 +303,140 @@ void LD38::Tile::hideHpBar()
 {
 	if (this->building)
 	{
+		this->building->lockHpBarVisibility(false);
 		this->building->setHpBarVisibility(false);
 	}
+}
+
+void LD38::Tile::showRsBar()
+{
+	if (this->building && this->resourceType != ResourceManager::ResourceType::POPULATION)
+	{
+		this->building->setRsBarVisibility(true);
+	}
+}
+
+void LD38::Tile::hideRsBar()
+{
+	if (this->building && this->resourceType != ResourceManager::ResourceType::POPULATION)
+	{
+		this->building->setRsBarVisibility(false);
+	}
+}
+
+bool LD38::Tile::isEmptyTile()
+{
+	return this->building == nullptr;
+}
+
+bool LD38::Tile::isCastle()
+{
+	return this->id == 12 && this->row == 2 && this->col == 2;
+}
+
+ResourceGenBuilding::BuildingType LD38::Tile::getBuildingType()
+{
+	if (this->building)
+	{
+		return this->building->getType();
+	}
+	else
+	{
+		return Building::BuildingType::NONE;
+	}
+}
+
+int LD38::Tile::getBuildingMaxHp()
+{
+	if (this->building)
+	{
+		return this->building->getMaxHp();
+	}
+	else
+	{
+		0;
+	}
+}
+
+int LD38::Tile::getBuildingCurHp()
+{
+	if (this->building)
+	{
+		return this->building->getCurHp();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+float LD38::Tile::getBuildingProductionRate()
+{
+	if (this->building)
+	{
+		return this->building->getProductionRate();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+int LD38::Tile::getBuildingUsageRate(ResourceManager::ResourceType type)
+{
+	if (this->building)
+	{
+		if (this->isCastle())
+		{
+			return 0;
+		}
+
+		auto rsGenBuilding = dynamic_cast<ResourceGenBuilding*>(this->building);
+		if (rsGenBuilding)
+		{
+			return rsGenBuilding->getUsage(type);
+		}
+		else
+		{
+			return 0;
+		}
+	}
+}
+
+std::string LD38::Tile::getNaturalResourcesAsStr()
+{
+	std::string str; 
+	str += std::to_string(this->potentialResources.at(METAL_INDEX).getTotal()) + "\n";
+	str += std::to_string(this->potentialResources.at(WOOD_INDEX).getTotal()) + "\n";
+	str += std::to_string(this->potentialResources.at(FOOD_INDEX).getTotal());
+
+	return str;
+}
+
+void LD38::Tile::makeNaturalResourceEnriched(const int index)
+{
+	this->enrichedParticle = cocos2d::ParticleSystemQuad::create("particles/enriched.plist");
+	this->tileNode->addChild(this->enrichedParticle, 100);
+
+	this->potentialResources.at(index).makeEnriched(2.0f);
+
+	cocos2d::log("tile #%d is enriched! index = %d", this->id, index);
+}
+
+int LD38::Tile::hasEnrichedNR()
+{
+	int counter = 0;
+	for (auto nr : this->potentialResources)
+	{
+		if (nr.isEnriched())
+		{
+			return counter;
+		}
+
+		counter++;
+	}
+
+	return -1;
 }
 
 bool LD38::Tile::updateResource(int & point, int & resource)

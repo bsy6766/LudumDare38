@@ -33,6 +33,7 @@ namespace LD38
 		// cocos2d
 		cocos2d::Node* tileNode;
 		cocos2d::Sprite* emptyTileSprite;
+		cocos2d::ParticleSystemQuad* enrichedParticle;
 
 		// raw data
 		int row;
@@ -60,8 +61,6 @@ namespace LD38
 
 		// True if this tile has building. Else, false
 		bool hasBuilding();
-		// True if tile is fertile. Else, false
-		bool isFertile();
 		// True if vec2 point is in the tile boundary. Else, false
 		bool containsPoint(const cocos2d::Vec2& point);
 		// get tile id
@@ -69,8 +68,24 @@ namespace LD38
 		// get tile node position
 		cocos2d::Vec2 getTilePosition();
 		// show / hide hp bar
-		void showHpBar();
+		void showHpBar(const bool selected);
 		void hideHpBar();
+		void showRsBar();
+		void hideRsBar();
+		// check if tile is empty
+		bool isEmptyTile();
+		bool isCastle();
+
+		ResourceGenBuilding::BuildingType getBuildingType();
+
+		int getBuildingMaxHp();
+		int getBuildingCurHp();
+
+		float getBuildingProductionRate();
+		int getBuildingUsageRate(ResourceManager::ResourceType type);
+		std::string getNaturalResourcesAsStr();
+		void makeNaturalResourceEnriched(const int index);
+		int hasEnrichedNR();
 	};
 }
 

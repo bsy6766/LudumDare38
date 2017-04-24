@@ -15,7 +15,7 @@
                 <key>spriteSourceSize</key>
                 <string>{120,120}</string>
                 <key>textureRect</key>
-                <string>{{294,538},{120,120}}</string>
+                <string>{{320,538},{120,120}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
@@ -23,7 +23,7 @@
                 <key>vertices</key>
                 <string>120 120 0 120 0 0 120 0</string>
                 <key>verticesUV</key>
-                <string>414 658 294 658 294 538 414 538</string>
+                <string>440 658 320 658 320 538 440 538</string>
             </dict>
             <key>castleBuilding.png</key>
             <dict>
@@ -36,7 +36,7 @@
                 <key>spriteSourceSize</key>
                 <string>{120,136}</string>
                 <key>textureRect</key>
-                <string>{{538,520},{120,136}}</string>
+                <string>{{198,522},{120,136}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
@@ -44,7 +44,7 @@
                 <key>vertices</key>
                 <string>37 10 80 10 93 0 120 0 120 136 0 136 0 0 27 0</string>
                 <key>verticesUV</key>
-                <string>575 530 618 530 631 520 658 520 658 656 538 656 538 520 565 520</string>
+                <string>235 532 278 532 291 522 318 522 318 658 198 658 198 522 225 522</string>
             </dict>
             <key>castleFlag_0.png</key>
             <dict>
@@ -57,7 +57,7 @@
                 <key>spriteSourceSize</key>
                 <string>{45,46}</string>
                 <key>textureRect</key>
-                <string>{{566,310},{45,46}}</string>
+                <string>{{111,64},{45,46}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
@@ -65,7 +65,7 @@
                 <key>vertices</key>
                 <string>45 14 9 46 0 46 0 0 45 0</string>
                 <key>verticesUV</key>
-                <string>611 324 575 356 566 356 566 310 611 310</string>
+                <string>156 78 120 110 111 110 111 64 156 64</string>
             </dict>
             <key>castleFlag_1.png</key>
             <dict>
@@ -78,7 +78,7 @@
                 <key>spriteSourceSize</key>
                 <string>{45,46}</string>
                 <key>textureRect</key>
-                <string>{{613,310},{45,46}}</string>
+                <string>{{613,326},{45,46}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
@@ -86,30 +86,9 @@
                 <key>vertices</key>
                 <string>45 18 9 46 0 46 0 0 45 0</string>
                 <key>verticesUV</key>
-                <string>658 328 622 356 613 356 613 310 658 310</string>
+                <string>658 344 622 372 613 372 613 326 658 326</string>
             </dict>
             <key>castleFlag_2.png</key>
-            <dict>
-                <key>aliases</key>
-                <array/>
-                <key>spriteOffset</key>
-                <string>{0,0}</string>
-                <key>spriteSize</key>
-                <string>{45,46}</string>
-                <key>spriteSourceSize</key>
-                <string>{45,46}</string>
-                <key>textureRect</key>
-                <string>{{369,64},{45,46}}</string>
-                <key>textureRotated</key>
-                <false/>
-                <key>triangles</key>
-                <string>0 3 4 1 2 3 0 1 3</string>
-                <key>vertices</key>
-                <string>45 25 9 46 0 46 0 0 45 0</string>
-                <key>verticesUV</key>
-                <string>414 89 378 110 369 110 369 64 414 64</string>
-            </dict>
-            <key>castleFlag_3.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -126,9 +105,30 @@
                 <key>triangles</key>
                 <string>0 3 4 1 2 3 0 1 3</string>
                 <key>vertices</key>
+                <string>45 25 9 46 0 46 0 0 45 0</string>
+                <key>verticesUV</key>
+                <string>109 91 73 112 64 112 64 66 109 66</string>
+            </dict>
+            <key>castleFlag_3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{45,46}</string>
+                <key>spriteSourceSize</key>
+                <string>{45,46}</string>
+                <key>textureRect</key>
+                <string>{{64,489},{45,46}}</string>
+                <key>textureRotated</key>
+                <false/>
+                <key>triangles</key>
+                <string>0 3 4 1 2 3 0 1 3</string>
+                <key>vertices</key>
                 <string>45 21 9 46 0 46 0 0 45 0</string>
                 <key>verticesUV</key>
-                <string>109 87 73 112 64 112 64 66 109 66</string>
+                <string>109 510 73 535 64 535 64 489 109 489</string>
             </dict>
             <key>emptyTile.png</key>
             <dict>
@@ -141,7 +141,7 @@
                 <key>spriteSourceSize</key>
                 <string>{120,120}</string>
                 <key>textureRect</key>
-                <string>{{172,538},{120,120}}</string>
+                <string>{{538,204},{120,120}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
@@ -149,7 +149,7 @@
                 <key>vertices</key>
                 <string>120 120 0 120 0 0 120 0</string>
                 <key>verticesUV</key>
-                <string>292 658 172 658 172 538 292 538</string>
+                <string>658 324 538 324 538 204 658 204</string>
             </dict>
             <key>farmBuilding.png</key>
             <dict>
@@ -158,19 +158,19 @@
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{120,120}</string>
+                <string>{126,136}</string>
                 <key>spriteSourceSize</key>
-                <string>{120,120}</string>
+                <string>{126,136}</string>
                 <key>textureRect</key>
-                <string>{{538,66},{120,120}}</string>
+                <string>{{532,66},{126,136}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
                 <string>1 2 3 0 1 3</string>
                 <key>vertices</key>
-                <string>120 120 0 120 0 0 120 0</string>
+                <string>126 136 0 136 0 0 126 0</string>
                 <key>verticesUV</key>
-                <string>658 186 538 186 538 66 658 66</string>
+                <string>658 202 532 202 532 66 658 66</string>
             </dict>
             <key>gridBorder.png</key>
             <dict>
@@ -200,19 +200,19 @@
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{120,120}</string>
+                <string>{124,123}</string>
                 <key>spriteSourceSize</key>
-                <string>{120,120}</string>
+                <string>{124,123}</string>
                 <key>textureRect</key>
-                <string>{{538,188},{120,120}}</string>
+                <string>{{406,64},{124,123}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
-                <string>1 2 3 0 1 3</string>
+                <string>3 4 5 0 3 5 1 2 3 0 1 3</string>
                 <key>vertices</key>
-                <string>120 120 0 120 0 0 120 0</string>
+                <string>124 123 7 123 2 118 0 104 0 0 124 0</string>
                 <key>verticesUV</key>
-                <string>658 308 538 308 538 188 658 188</string>
+                <string>530 187 413 187 408 182 406 168 406 64 530 64</string>
             </dict>
             <key>mineBuilding.png</key>
             <dict>
@@ -221,19 +221,19 @@
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{120,120}</string>
+                <string>{126,131}</string>
                 <key>spriteSourceSize</key>
-                <string>{120,120}</string>
+                <string>{126,131}</string>
                 <key>textureRect</key>
-                <string>{{416,64},{120,120}}</string>
+                <string>{{530,527},{126,131}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
-                <string>1 2 3 0 1 3</string>
+                <string>1 4 5 2 3 4 1 2 4 0 1 5</string>
                 <key>vertices</key>
-                <string>120 120 0 120 0 0 120 0</string>
+                <string>126 15 126 131 2 131 0 11 69 0 85 0</string>
                 <key>verticesUV</key>
-                <string>536 184 416 184 416 64 536 64</string>
+                <string>656 542 656 658 532 658 530 538 599 527 615 527</string>
             </dict>
             <key>villageBuilding.png</key>
             <dict>
@@ -242,19 +242,19 @@
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{120,120}</string>
+                <string>{132,137}</string>
                 <key>spriteSourceSize</key>
-                <string>{120,120}</string>
+                <string>{132,137}</string>
                 <key>textureRect</key>
-                <string>{{416,538},{120,120}}</string>
+                <string>{{64,521},{132,137}}</string>
                 <key>textureRotated</key>
                 <false/>
                 <key>triangles</key>
-                <string>1 2 3 0 1 3</string>
+                <string>4 6 7 4 5 6 0 1 4 2 3 4 1 2 4 0 4 7</string>
                 <key>vertices</key>
-                <string>120 120 0 120 0 0 120 0</string>
+                <string>132 22 132 137 18 137 11 134 0 85 0 19 66 0 81 0</string>
                 <key>verticesUV</key>
-                <string>536 658 416 658 416 538 536 538</string>
+                <string>196 543 196 658 82 658 75 655 64 606 64 540 130 521 145 521</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -270,7 +270,7 @@
             <key>size</key>
             <string>{1024,1024}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:2cd68e9e6a1d776ce0cbeb39e6e7740d:96993d4a5507014e1d5ca87229aa20b4:8793893896d891aa7fd30a757b7ec5c5$</string>
+            <string>$TexturePacker:SmartUpdate:ac44542104ea473951ba08cdfa812b74:8582a4d3e069f6a3de7d94e0da50d3f1:8793893896d891aa7fd30a757b7ec5c5$</string>
             <key>textureFileName</key>
             <string>TileSpriteSheet.png</string>
         </dict>

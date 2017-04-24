@@ -4,6 +4,8 @@
 #include "cocos2d.h"
 #include "Tile.h"
 #include "Resource.h"
+#include "MouseCursor.h"
+#include "GameSpeed.h"
 
 class GameScene : public cocos2d::Scene
 {
@@ -51,10 +53,56 @@ private:
 		TILE_HOVER,
 		TILE_SELECT,
 		PANEL,
+		INFO,
 		ICONS,
 		PAUSE,
 		MOUSE_CURSOR
 	};
+
+	enum RIGHT_PANEL_TAG
+	{
+		TILE_TITLE,
+		TITLE_DIVIDER,
+		NATURAL_RESOURCES_TITLE,
+		NATURAL_RESOURCES_NUMBERS,
+		NATURAL_RESOURCES_ICONS,
+		ENRICH_ICON,
+		GENERATES_LABEL,
+		USES_LABEL,
+		VERTICAL_ICON_PACK,
+		CASTLE_HP_LABEL,
+		SECOND_DIVIDER,
+		BUILD_ICON,
+		CLEAR_ICON,
+		DESTROY_ICON,
+		THIRD_DIVIDER,
+		FARM_ICON,
+		VILLAGE_ICON,
+		MINE_ICON,
+		LUMBERMILL_ICON
+	};
+
+	enum class RIGHT_PANEL_STATE
+	{
+		NONE = 0,
+		IDLE,
+		EMPTY_TILE,
+		RS_GEN_TILE,
+		CASTLE,
+		BUILD_MODE,
+		CLEAN_MODE,
+		DESTROY_MODE,
+		BUILD_FARM,
+		BUILD_MINE,
+		BUILD_LM,
+		BUILD_VILLAGE,
+	};
+
+	RIGHT_PANEL_STATE rpState;
+
+	// instances
+	MouseCursor* cursor;
+	GameSpeed* gs;
 
 	// flag
 	bool pause;
@@ -64,7 +112,6 @@ private:
 
 	// cocos2d
 	cocos2d::Node* uiNode;
-	cocos2d::Sprite* mouseCursor;
 
 	cocos2d::Sprite* populationIcon;
 	cocos2d::Label* populationLabel;
@@ -85,6 +132,37 @@ private:
 	cocos2d::Sprite* rightPanel;
 
 	cocos2d::Node* pauseNode;
+
+	//Right panel
+	cocos2d::Node* tileInfoPanelNode;
+
+	// dividers
+	cocos2d::Sprite* titleDivider;
+	cocos2d::Sprite* secondDivider;
+	cocos2d::Sprite* thirdDivider;
+
+	// Labels
+	cocos2d::Label* tileTitleLabel;
+	cocos2d::Label* genLabel;
+	cocos2d::Label* usesLabel;
+	cocos2d::Label* castleHpLabel;
+
+	cocos2d::Label* nrTitle;
+	cocos2d::Label* nrLabel;
+
+	// icons
+	cocos2d::Sprite* buildIcon;
+	cocos2d::Sprite* cleanIcon;
+	cocos2d::Sprite* destroyIcon;
+	
+	cocos2d::Sprite* farmIcon;
+	cocos2d::Sprite* villageIcon;
+	cocos2d::Sprite* lumbermillIcon;
+	cocos2d::Sprite* mineIcon;
+
+	cocos2d::Sprite* nrIcon;
+	cocos2d::Sprite* enrichIcon;
+	cocos2d::Sprite* verticalIcon;
 
 	cocos2d::Sprite* tileHoverSprite;
 	cocos2d::Sprite* tileSelectSprite;
@@ -112,8 +190,18 @@ private:
 	void initTiles();
 	void initResources();
 	void initSprites();
+	void initData();
+	void initInstances();
 
 	void updateResourceUI(ResourceManager* rm);
+	void clearRightPanel();
+	void updateRightPanel(LD38::Tile* tile);
+	void toggleBuildingIcons(const bool visibility);
+	bool checkModeIconMouseHover(const cocos2d::Vec2& point);
+	bool checkModeIconMouseClick(const cocos2d::Vec2& point);
+	bool checkBuildingIconMouseClick(const cocos2d::Vec2& point);
+	bool checkBuildingIconMouseHover(const cocos2d::Vec2& point);
+	bool checkRightPanelMouse(const cocos2d::Vec2& point);
 
 	LD38::Tile* getTileById(const int tileId);
 

@@ -6,17 +6,19 @@
 struct NaturalResource
 {
 private:
-	bool enriched;
+	int enrichedModifier;
 	int totalAmount;
 	int currentAmount;
 public:
 	void init();
 	void init(NaturalResource& nr);
 	bool isEnriched();
-	void makeEnriched();
+	void makeEnriched(const int value);
 	bool isDepleted();
 	void update(int& point);
 	int getRemaining();
+	int getTotal();
+	int getEnrichedModifier();
 };
 
 class ResourceManager
@@ -53,6 +55,7 @@ private:
 
 	void needToUpdateUI();
 	void addResource(int& resource, const int& resourceCap, const int amount);
+	bool useResource(int& resource, const int& resourceCap, const int amount);
 public:
 	// Get instance
 	static ResourceManager* getInstance();
@@ -87,11 +90,16 @@ public:
 	bool isWoodsFull();
 	bool isMetalsFull();
 
+	bool isPopulationEmpty();
+	bool isFoodEmpty();
+	bool isWoodEmpty();
+	bool isMetalEmpty();
+
 	// add food
 	void addFoods(const int foods);
 	void addWoods(const int woods);
 	void addMetals(const int metals);
-	void addPopulation(const int population);
+	bool addPopulation(const int population);
 
 	// update f;ag
 	bool doesNeedToUpdateUI();
