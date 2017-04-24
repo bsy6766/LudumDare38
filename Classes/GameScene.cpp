@@ -463,7 +463,7 @@ void GameScene::initTiles()
 void GameScene::initResources()
 {
 	auto r = ResourceManager::getInstance();
-	r->initResources(20, 50, 50, 50, 0);
+	r->initResources(20, 100, 100, 100, 0);
 	r->initResourcesCap(200, 500, 500, 500, 500);
 }
 
@@ -1732,11 +1732,11 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		this->gs->togglePause();
 	}
 
+	/*
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_R)
 	{
 		ResourceManager::getInstance()->print();
 	}
-
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_GRAVE)
 	{
 		ResourceManager::getInstance()->debugSetAllRsToZero();
@@ -1751,6 +1751,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		rm->doesNeedToUpdateUI();
 	}
 
+	*/
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_1)
 	{
 		this->gs->setSpeed(GameSpeed::SPEED_STATE::X1);
