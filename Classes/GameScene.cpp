@@ -1,7 +1,7 @@
 #include "GameScene.h"
 #include "DataManager.h"
 #include "Utility.h"
-#include "SimpleAudioEngine.h"  
+#include "SoundManager.h"
 #include <unordered_set>
 
 USING_NS_CC;
@@ -43,9 +43,9 @@ bool GameScene::init()
 	this->curHoveringTileId = -1;
 	this->curSelectingTileId = -1;
 	this->deltaModifier = 1.0f;
-	this->pause = false;
 	this->rpState = RIGHT_PANEL_STATE::IDLE;
 	this->buildPreview = nullptr;
+	this->viewingMenu = false;
 
 	this->initSpriteSheets();
 	this->initData();
@@ -54,6 +54,7 @@ bool GameScene::init()
 	this->initTiles();
 	this->initResources();
 	this->initInstances();
+	this->initAudio();
 
 	this->clearRightPanel();
 	this->updateRightPanel(nullptr);
@@ -358,7 +359,21 @@ void GameScene::initUI()
 		this->tileInfoPanelNode->addChild(this->mineIcon);
 	}
 
+	this->menuPanel = cocos2d::Sprite::createWithSpriteFrameName("menuPanel.png");
+	this->menuPanel->setPosition(cocos2d::Vec2(winSize * 0.5f));
+	this->menuPanel->setVisible(false);
+	this->uiNode->addChild(this->menuPanel, static_cast<int>(UI_Z_ORDER::MENU));
+
+	this->resumeLabel = cocos2d::Sprite::createWithSpriteFrameName("resumeLabel.png");
+	this->resumeLabel->setPosition(cocos2d::Vec2(109.0f, 150.0f));
+	this->menuPanel->addChild(this->resumeLabel);
+
+	this->exitLabel = cocos2d::Sprite::createWithSpriteFrameName("exitLabel.png");
+	this->exitLabel->setPosition(cocos2d::Vec2(109.0f, 100.0f));
+	this->menuPanel->addChild(this->exitLabel);
+
 	// pause Node
+	/*
 	this->pauseNode = cocos2d::Node::create();
 	this->uiNode->addChild(this->pauseNode, static_cast<int>(UI_Z_ORDER::PAUSE));
 
@@ -375,6 +390,7 @@ void GameScene::initUI()
 	this->pauseNode->addChild(pauseLabelSprite, 1);
 
 	this->pauseNode->setVisible(false);
+	*/
 }
 
 void GameScene::initTiles()
@@ -513,13 +529,8 @@ void GameScene::initInstances()
 
 void GameScene::initAudio()
 {
-	auto ss = CocosDenshion::SimpleAudioEngine::getInstance();
-
-	ss->preloadBackgroundMusic("audios/bgm.wav");
-	ss->preloadEffect("audios/villageSelectSFX.wav");
-	ss->preloadEffect("audios/lumbermillSelectSFX.wav");
-
-	ss->preloadEffect("audios/buttonSFX.wav");
+	SoundManager::getInstance()->init();
+	SoundManager::getInstance()->initIcons(this->uiNode, static_cast<int>(UI_Z_ORDER::ICONS));
 }
 
 void GameScene::onEnter()
@@ -528,13 +539,12 @@ void GameScene::onEnter()
 
 	initInputListeners();
 
-	auto ss = CocosDenshion::SimpleAudioEngine::getInstance();
-	ss->playBackgroundMusic("audios/bgm.wav", true);
+	//SoundManager::getInstance()->playMusic();
 }
 
 void GameScene::update(float delta)
 {
-	if (!this->pause)
+	if (!this->viewingMenu)
 	{
 		float speed = this->gs->getSpeed();
 		if (speed == 0.0f)
@@ -1138,8 +1148,6 @@ void GameScene::toggleBuildingPreview(LD38::Tile * tile)
 
 void GameScene::playSelectSound(LD38::Tile * tile)
 {
-	auto ss = CocosDenshion::SimpleAudioEngine::getInstance();
-
 	if (tile->hasBuilding())
 	{
 		if (tile->isCastle())
@@ -1160,12 +1168,12 @@ void GameScene::playSelectSound(LD38::Tile * tile)
 			break;
 			case Building::BuildingType::WOOD:
 			{
-				ss->playEffect("audios/lumbermillSelectSFX.wav");
+				SoundManager::getInstance()->playLumbermillSelect();
 			}
 			break;
 			case Building::BuildingType::POPULATION:
 			{
-				ss->playEffect("audios/villageSelectSFX.wav");
+				SoundManager::getInstance()->playVillageSelect();
 			}
 			break;
 			default:
@@ -1177,11 +1185,6 @@ void GameScene::playSelectSound(LD38::Tile * tile)
 	{
 		// field sound
 	}
-}
-
-void GameScene::playButtonClickSFX()
-{
-	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("audios/buttonSFX.wav");
 }
 
 void GameScene::clearRightPanel()
@@ -1219,6 +1222,8 @@ void GameScene::onMouseMove(cocos2d::Event* event)
 	auto point = cocos2d::Vec2(x, y);
 
 	this->cursor->updatePosition(point);
+
+	if (this->viewingMenu) return;
 
 	bool hovering = false;
 
@@ -1262,6 +1267,10 @@ void GameScene::onMouseMove(cocos2d::Event* event)
 		return;
 	}
 	else if (this->gs->mouseHover(point))
+	{
+		return;
+	}
+	else if (SoundManager::getInstance()->mouseHover(point))
 	{
 		return;
 	}
@@ -1372,6 +1381,31 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 	
 	auto point = cocos2d::Vec2(x, y);
 
+	if (this->viewingMenu)
+	{
+		auto shift = this->menuPanel->getPosition() - (this->menuPanel->getContentSize() * 0.5f);
+
+		auto resumeBB = this->resumeLabel->getBoundingBox();
+		resumeBB.origin += shift;
+
+		auto exitBB = this->exitLabel->getBoundingBox();
+		exitBB.origin += shift;
+
+		if (resumeBB.containsPoint(point))
+		{
+			this->viewingMenu = false;
+			this->menuPanel->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0, 1.0), cocos2d::ScaleTo::create(0.1f, 0.0f), cocos2d::Hide::create(), nullptr));
+			return;
+		}
+
+		if (exitBB.containsPoint(point))
+		{
+			cocos2d::Director::getInstance()->end();
+		}
+
+		return;
+	}
+
 	if (this->checkRightPanelMouse(point))
 	{
 		if (this->rpState == RIGHT_PANEL_STATE::EMPTY_TILE ||
@@ -1382,7 +1416,11 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 		{
 			// Only 3 icons can be clicked on this case
 			bool clickedMode = this->checkModeIconMouseClick(point);
-			if (clickedMode) return;
+			if (clickedMode)
+			{
+				SoundManager::getInstance()->playButtonClick();
+				return;
+			}
 		}
 		else if (this->rpState == RIGHT_PANEL_STATE::BUILD_MODE ||
 					this->rpState == RIGHT_PANEL_STATE::BUILD_FARM ||
@@ -1395,6 +1433,7 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 			bool clickedMode = this->checkModeIconMouseClick(point);
 			if (clickedMode)
 			{
+				SoundManager::getInstance()->playButtonClick();
 				return;
 			}
 			else
@@ -1404,6 +1443,7 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 				bool clickedBuildingIcon = this->checkBuildingIconMouseClick(point);
 				if (clickedBuildingIcon)
 				{
+					SoundManager::getInstance()->playButtonClick();
 					if (this->curSelectingTileId != -1)
 					{
 						auto tile = this->getTileById(this->curSelectingTileId);
@@ -1539,6 +1579,7 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 							this->buildIcon->setOpacity(100);
 							this->cleanIcon->setOpacity(100);
 							this->destroyIcon->setOpacity(100);
+							SoundManager::getInstance()->playButtonClick();
 						}
 
 						this->toggleBuildingPreview(nullptr);
@@ -1552,6 +1593,11 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 		return;
 	}
 	else if(this->gs->mouseClick(point))
+	{
+		SoundManager::getInstance()->playButtonClick();
+		return;
+	}
+	else if (SoundManager::getInstance()->mouseClick(point))
 	{
 		return;
 	}
@@ -1574,6 +1620,8 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 				this->buildPreview->removeFromParent();
 				this->buildPreview = nullptr;
 			}
+
+			SoundManager::getInstance()->playTileDeselect();
 		}
 	}
 	else
@@ -1593,7 +1641,7 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 				tile->showRsBar();
 
 				this->playSelectSound(tile);
-				this->playButtonClickSFX();
+				SoundManager::getInstance()->playButtonClick();
 
 				this->updateRightPanel(tile);
 			}
@@ -1610,6 +1658,7 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 					tile->hideRsBar();
 
 					this->updateRightPanel(nullptr);
+					SoundManager::getInstance()->playTileDeselect();
 				}
 				else
 				{
@@ -1632,7 +1681,7 @@ void GameScene::onMouseDown(cocos2d::Event* event)
 					}
 
 					this->playSelectSound(tile);
-					this->playButtonClickSFX();
+					SoundManager::getInstance()->playButtonClick();
 
 					this->updateRightPanel(tile);
 				}
@@ -1662,13 +1711,25 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 {
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE)
 	{
-		cocos2d::Director::getInstance()->end();
+		if (this->viewingMenu)
+		{
+			//hide
+			this->viewingMenu = false;
+			this->menuPanel->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0, 1.0), cocos2d::ScaleTo::create(0.1f, 0.0f), cocos2d::Hide::create(), nullptr));
+		}
+		else
+		{
+			// show
+			this->viewingMenu = true;
+			this->menuPanel->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0, 0), cocos2d::Show::create(), cocos2d::ScaleTo::create(0.1f, 1.0f), nullptr));
+		}
 	}
 
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_SPACE)
 	{
-		this->pause = !this->pause;
-		this->pauseNode->setVisible(this->pause);
+		//this->pause = !this->pause;
+		//this->pauseNode->setVisible(this->pause);
+		this->gs->togglePause();
 	}
 
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_R)
@@ -1680,7 +1741,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 	{
 		ResourceManager::getInstance()->debugSetAllRsToZero();
 	}
-	else if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_1)
+	else if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_Q)
 	{
 		auto rm = ResourceManager::getInstance();
 		rm->addPopulation(20);
@@ -1688,6 +1749,19 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		rm->addMetals(20);
 		rm->addFoods(20);
 		rm->doesNeedToUpdateUI();
+	}
+
+	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_1)
+	{
+		this->gs->setSpeed(GameSpeed::SPEED_STATE::X1);
+	}
+	else if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_2)
+	{
+		this->gs->setSpeed(GameSpeed::SPEED_STATE::X2);
+	}
+	else if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_3)
+	{
+		this->gs->setSpeed(GameSpeed::SPEED_STATE::X3);
 	}
 }
 
@@ -1727,6 +1801,7 @@ void GameScene::onExit()
 
 	ResourceManager::deleteInstance();
 	DataManager::deleteInstance();
+	SoundManager::deleteInstance();
 
 	if (this->cursor)
 	{

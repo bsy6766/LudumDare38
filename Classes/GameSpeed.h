@@ -5,8 +5,8 @@
 
 class GameSpeed
 {
-private:
-	enum class CUR_SPRITE
+public:
+	enum class SPEED_STATE
 	{
 		PAUSED = 0,
 		X1,
@@ -22,7 +22,11 @@ private:
 	cocos2d::Sprite* speedx2;
 	cocos2d::Sprite* speedx3;
 
-	CUR_SPRITE curSprite;
+	SPEED_STATE curSprite;
+
+	SPEED_STATE prevSprite;
+
+	void toggleVisibility(const bool visibility);
 public:
 	GameSpeed();
 	~GameSpeed();
@@ -31,9 +35,12 @@ public:
 
 	float getSpeed() { return speed; }
 	void setSpeed(const float speed);
+	void setSpeed(SPEED_STATE state);
 
 	bool mouseHover(const cocos2d::Vec2& point);
 	bool mouseClick(const cocos2d::Vec2& point);
+
+	void togglePause();
 };
 
 #endif

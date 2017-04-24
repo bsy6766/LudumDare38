@@ -8,7 +8,8 @@ GameSpeed::GameSpeed()
 	, speedx1(nullptr)
 	, speedx2(nullptr)
 	, speedx3(nullptr)
-	, curSprite(CUR_SPRITE::X1)
+	, curSprite(SPEED_STATE::X1)
+	, prevSprite(SPEED_STATE::X1)
 	, speed(1.0f)
 {}
 
@@ -54,13 +55,59 @@ void GameSpeed::setSpeed(const float speed)
 	}
 }
 
+void GameSpeed::setSpeed(SPEED_STATE state)
+{
+	this->toggleVisibility(false);
+	this->curSprite = state;
+	this->toggleVisibility(true);
+
+	switch (state)
+	{
+	case GameSpeed::SPEED_STATE::PAUSED:
+		this->speed = 0.0f;
+		break;
+	case GameSpeed::SPEED_STATE::X1:
+		this->speed = 1.0f;
+		break;
+	case GameSpeed::SPEED_STATE::X2:
+		this->speed = 2.0f;
+		break;
+	case GameSpeed::SPEED_STATE::X3:
+		this->speed = 3.0f;
+		break;
+	default:
+		break;
+	}
+}
+
+void GameSpeed::toggleVisibility(const bool visibility)
+{
+	switch (this->curSprite)
+	{
+	case GameSpeed::SPEED_STATE::PAUSED:
+		this->speedx0->setVisible(visibility);
+		break;
+	case GameSpeed::SPEED_STATE::X1:
+		this->speedx1->setVisible(visibility);
+		break;
+	case GameSpeed::SPEED_STATE::X2:
+		this->speedx2->setVisible(visibility);
+		break;
+	case GameSpeed::SPEED_STATE::X3:
+		this->speedx3->setVisible(visibility);
+		break;
+	default:
+		break;
+	}
+}
+
 bool GameSpeed::mouseHover(const cocos2d::Vec2 & point)
 {
 	auto shift = this->speedIconNode->getPosition();
 
 	switch (this->curSprite)
 	{
-	case GameSpeed::CUR_SPRITE::PAUSED:
+	case GameSpeed::SPEED_STATE::PAUSED:
 	{
 		auto bb = this->speedx0->getBoundingBox();
 		bb.origin += shift;
@@ -76,7 +123,7 @@ bool GameSpeed::mouseHover(const cocos2d::Vec2 & point)
 		}
 	}
 		break;
-	case GameSpeed::CUR_SPRITE::X1:
+	case GameSpeed::SPEED_STATE::X1:
 	{
 		auto bb = this->speedx1->getBoundingBox();
 		bb.origin += shift;
@@ -92,7 +139,7 @@ bool GameSpeed::mouseHover(const cocos2d::Vec2 & point)
 		}
 	}
 		break;
-	case GameSpeed::CUR_SPRITE::X2:
+	case GameSpeed::SPEED_STATE::X2:
 	{
 		auto bb = this->speedx2->getBoundingBox();
 		bb.origin += shift;
@@ -108,7 +155,7 @@ bool GameSpeed::mouseHover(const cocos2d::Vec2 & point)
 		}
 	}
 		break;
-	case GameSpeed::CUR_SPRITE::X3:
+	case GameSpeed::SPEED_STATE::X3:
 	{
 		auto bb = this->speedx3->getBoundingBox();
 		bb.origin += shift;
@@ -137,14 +184,14 @@ bool GameSpeed::mouseClick(const cocos2d::Vec2 & point)
 
 	switch (this->curSprite)
 	{
-	case GameSpeed::CUR_SPRITE::PAUSED:
+	case GameSpeed::SPEED_STATE::PAUSED:
 	{
 		auto bb = this->speedx0->getBoundingBox();
 		bb.origin += shift;
 		if (bb.containsPoint(point))
 		{
 			this->speedx0->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0.05f, 0.9f), cocos2d::ScaleTo::create(0.05f, 1.0f), nullptr));
-			this->curSprite = CUR_SPRITE::X1;
+			this->curSprite = SPEED_STATE::X1;
 			this->speedx0->setVisible(false);
 			this->speedx1->setVisible(true);
 			this->setSpeed(1.0f);
@@ -152,14 +199,14 @@ bool GameSpeed::mouseClick(const cocos2d::Vec2 & point)
 		}
 	}
 	break;
-	case GameSpeed::CUR_SPRITE::X1:
+	case GameSpeed::SPEED_STATE::X1:
 	{
 		auto bb = this->speedx1->getBoundingBox();
 		bb.origin += shift;
 		if (bb.containsPoint(point))
 		{
 			this->speedx1->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0.05f, 0.9f), cocos2d::ScaleTo::create(0.05f, 1.0f), nullptr));
-			this->curSprite = CUR_SPRITE::X2;
+			this->curSprite = SPEED_STATE::X2;
 			this->speedx1->setVisible(false);
 			this->speedx2->setVisible(true);
 			this->setSpeed(2.0f);
@@ -167,14 +214,14 @@ bool GameSpeed::mouseClick(const cocos2d::Vec2 & point)
 		}
 	}
 	break;
-	case GameSpeed::CUR_SPRITE::X2:
+	case GameSpeed::SPEED_STATE::X2:
 	{
 		auto bb = this->speedx2->getBoundingBox();
 		bb.origin += shift;
 		if (bb.containsPoint(point))
 		{
 			this->speedx2->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0.05f, 0.9f), cocos2d::ScaleTo::create(0.05f, 1.0f), nullptr));
-			this->curSprite = CUR_SPRITE::X3;
+			this->curSprite = SPEED_STATE::X3;
 			this->speedx2->setVisible(false);
 			this->speedx3->setVisible(true);
 			this->setSpeed(3.0f);
@@ -182,14 +229,14 @@ bool GameSpeed::mouseClick(const cocos2d::Vec2 & point)
 		}
 	}
 	break;
-	case GameSpeed::CUR_SPRITE::X3:
+	case GameSpeed::SPEED_STATE::X3:
 	{
 		auto bb = this->speedx3->getBoundingBox();
 		bb.origin += shift;
 		if (bb.containsPoint(point))
 		{
 			this->speedx3->runAction(cocos2d::Sequence::create(cocos2d::ScaleTo::create(0.05f, 0.9f), cocos2d::ScaleTo::create(0.05f, 1.0f), nullptr));
-			this->curSprite = CUR_SPRITE::PAUSED;
+			this->curSprite = SPEED_STATE::PAUSED;
 			this->speedx3->setVisible(false);
 			this->speedx0->setVisible(true);
 			this->setSpeed(0.0f);
@@ -202,4 +249,47 @@ bool GameSpeed::mouseClick(const cocos2d::Vec2 & point)
 	}
 
 	return false;
+}
+
+void GameSpeed::togglePause()
+{
+	if (this->curSprite == SPEED_STATE::PAUSED)
+	{
+		// resume
+		this->curSprite = this->prevSprite;
+		this->speedx0->setVisible(false);
+
+		switch (curSprite)
+		{
+		case GameSpeed::SPEED_STATE::X1:
+			this->speedx1->setVisible(true);
+			this->speed = 1.0f;
+			break;
+		case GameSpeed::SPEED_STATE::X2:
+			this->speedx2->setVisible(true);
+			this->speed = 2.0f;
+			break;
+		case GameSpeed::SPEED_STATE::X3:
+			this->speedx3->setVisible(true);
+			this->speed = 3.0f;
+			break;
+		case GameSpeed::SPEED_STATE::PAUSED:
+		default:
+			break;
+		}
+	}
+	else
+	{
+		//pause
+		this->prevSprite = this->curSprite;
+		this->curSprite = SPEED_STATE::PAUSED;
+		this->speedx0->setVisible(true);
+		this->speed = 0.0f;
+
+		this->speedx1->setVisible(false);
+		this->speedx2->setVisible(false);
+		this->speedx3->setVisible(false);
+	}
+	
+	
 }

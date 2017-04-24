@@ -45,7 +45,8 @@ private:
 		TREES,
 		GRADIANTS,
 		PARTICLES,
-		UI
+		MENU,
+		UI,
 	};
 
 	enum class UI_Z_ORDER
@@ -57,6 +58,7 @@ private:
 		INFO,
 		ICONS,
 		PAUSE,
+		MENU,
 		MOUSE_CURSOR
 	};
 
@@ -106,7 +108,7 @@ private:
 	GameSpeed* gs;
 
 	// flag
-	bool pause;
+	bool viewingMenu;
 
 	// debug
 	float deltaModifier;
@@ -132,7 +134,10 @@ private:
 	cocos2d::Sprite* leftPanel;
 	cocos2d::Sprite* rightPanel;
 
-	cocos2d::Node* pauseNode;
+	cocos2d::Sprite* menuPanel;
+	cocos2d::Sprite* menuBlackRect;
+	cocos2d::Sprite* resumeLabel;
+	cocos2d::Sprite* exitLabel;
 
 	//Right panel
 	cocos2d::Node* tileInfoPanelNode;
@@ -220,7 +225,6 @@ private:
 	bool checkRightPanelMouse(const cocos2d::Vec2& point);
 	void toggleBuildingPreview(LD38::Tile* tile);
 	void playSelectSound(LD38::Tile* tile);
-	void playButtonClickSFX();
 
 	LD38::Tile* getTileById(const int tileId);
 
