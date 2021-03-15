@@ -1,4 +1,8 @@
 # LudumDare38
+## Some links you might be interested...
+[**Submission page**](https://ldjam.com/events/ludum-dare/38/5x5-kingdom)  
+[**Download(Win32, Google Drive)**](https://drive.google.com/open?id=0BxL3wp7rb67tVUZqaFBERlktMEk)  
+[**Demo Video(Youtube)**](https://www.youtube.com/watch?v=dLdJFonKgFc)
 
 ## Theme
 Small world
@@ -6,8 +10,14 @@ Small world
 ## My Game
 I made simple tile-based tactic game where you build and manage your kingdom. World is limited to 5 x 5 tile grid and random events give player challenges to their kingdom managements.
 
-## Settings
-Engine: cocos2d-x 3.15  
+## Note
+Due to the tight schedule of the Game Jam, both the codes and assets are unorganized. 
+
+## Assets
+All assets were created by myself, except the sound effects.  
+
+## Development Info
+Engine: Cocos2d-x 3.15  
 Language: C++  
 Art tool: Adobe Photoshop, TexturePacker
 
